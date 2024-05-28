@@ -1,9 +1,14 @@
 import * as React from "react";
 import useGame from "../hooks/useGame";
 import Board from "./Board";
+import { Flex } from "@chakra-ui/react";
 
 export default function App() {
-  const { gameState, makeMove } = useGame();
+  const { gameState, botPlayer, makeMove } = useGame();
 
-  return <Board board={gameState.board} onClick={makeMove} />;
+  return (
+    <Flex w="100vw" h="100vh" bg="dimgrey" justifyContent="center">
+      <Board gameState={gameState} botPlayer={botPlayer} onClick={makeMove} />
+    </Flex>
+  );
 }

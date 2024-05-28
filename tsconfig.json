@@ -3,6 +3,8 @@
         "./src/*"
     ],
     "compilerOptions": {
+        "module": "es2022",
+        "moduleResolution": "Node",
         "lib": [
             "dom",
             "es2015"

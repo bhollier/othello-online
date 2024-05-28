@@ -14,10 +14,10 @@ export interface PositionType {
   y: number;
 }
 
-export type Move = PositionType[];
+export type MoveType = PositionType[];
 
 export interface GameStateType {
   board: BoardType;
   currentPlayer: PlayerEnum;
-  playerMoves: Move[];
+  playerMoves: MoveType[];
 }
