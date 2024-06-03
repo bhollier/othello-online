@@ -9,6 +9,7 @@
     "@emotion/react": "latest",
     "@emotion/styled": "latest",
     "framer-motion": "latest",
+    "lru-cache": "^10.2.2",
     "react": "latest",
     "react-dom": "latest",
     "react-scripts": "latest"

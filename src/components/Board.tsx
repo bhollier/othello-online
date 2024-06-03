@@ -85,10 +85,10 @@ export default function Board({ gameState, botPlayer, onClick }: BoardProps) {
                 }
                 onClick={() => onClick(x, y)}
               >
-                {tile.claimed === PlayerEnum.PLAYER_1 && (
+                {tile === PlayerEnum.PLAYER_1 && (
                   <Box w={16} h={16} rounded="100%" bg="black"></Box>
                 )}
-                {tile.claimed === PlayerEnum.PLAYER_2 && (
+                {tile === PlayerEnum.PLAYER_2 && (
                   <Box w={16} h={16} rounded="100%" bg="white"></Box>
                 )}
               </Box>

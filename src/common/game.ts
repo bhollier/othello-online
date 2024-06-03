@@ -8,12 +8,12 @@ import {
 
 function initialBoard() {
   const board = Array.from(Array(8).values()).map(() =>
-    Array.from(Array(8).values()).map(() => ({}) as TileType),
+    Array.from(Array(8).values()).map(() => undefined as TileType),
   ) as BoardType;
-  board[8 / 2 - 1][8 / 2] = { claimed: PlayerEnum.PLAYER_1 };
-  board[8 / 2][8 / 2 - 1] = { claimed: PlayerEnum.PLAYER_1 };
-  board[8 / 2 - 1][8 / 2 - 1] = { claimed: PlayerEnum.PLAYER_2 };
-  board[8 / 2][8 / 2] = { claimed: PlayerEnum.PLAYER_2 };
+  board[8 / 2 - 1][8 / 2] = PlayerEnum.PLAYER_1;
+  board[8 / 2][8 / 2 - 1] = PlayerEnum.PLAYER_1;
+  board[8 / 2 - 1][8 / 2 - 1] = PlayerEnum.PLAYER_2;
+  board[8 / 2][8 / 2] = PlayerEnum.PLAYER_2;
   return board;
 }
 
@@ -33,8 +33,8 @@ function possibleMoves(board: BoardType, player: PlayerEnum) {
     let x = startX + xDir;
     let y = startY + yDir;
     if (x < 0 || x >= 8 || y < 0 || y >= 8) return [];
-    if (board[y][x].claimed !== otherPlayer(player)) return [];
-    while (board[y][x].claimed === otherPlayer(player)) {
+    if (board[y][x] !== otherPlayer(player)) return [];
+    while (board[y][x] === otherPlayer(player)) {
       tiles.push({ x, y });
       x += xDir;
       y += yDir;
@@ -45,7 +45,7 @@ function possibleMoves(board: BoardType, player: PlayerEnum) {
     if (tiles.length === 1) {
       return [];
     }
-    if (board[y][x].claimed !== player) {
+    if (board[y][x] !== player) {
       return [];
     }
     return tiles;
@@ -53,7 +53,7 @@ function possibleMoves(board: BoardType, player: PlayerEnum) {
 
   return board
     .flatMap((row, y) => row.map((tile, x) => ({ tile, x, y })))
-    .filter(({ tile }) => tile.claimed === undefined)
+    .filter(({ tile }) => tile === undefined)
     .map(({ x, y }) =>
       [
         takeTilesInDirection(x, y, 1, 0),
@@ -72,7 +72,7 @@ function possibleMoves(board: BoardType, player: PlayerEnum) {
 export function boardHashCode(board: BoardType) {
   const number = board
     .flatMap((row) => row)
-    .map((tile) => `${tile.claimed ? tile.claimed + 1 : 0}`)
+    .map((tile) => `${tile !== undefined ? tile + 1 : 0}`)
     .join("");
   return parseInt(number, 3);
 }
@@ -80,10 +80,10 @@ export function boardHashCode(board: BoardType) {
 export function playerScores(board: BoardType) {
   return board
     .flatMap((row) => row)
-    .filter((tile) => tile.claimed !== undefined)
+    .filter((tile) => tile !== undefined)
     .reduce(
       (acc, tile) => {
-        acc[tile.claimed]++;
+        acc[tile]++;
         return acc;
       },
       { [PlayerEnum.PLAYER_1]: 0, [PlayerEnum.PLAYER_2]: 0 },
@@ -109,16 +109,22 @@ export function makeMove(gameState: GameStateType, pos: PositionType) {
   const newBoard = gameState.board.map((row, y) =>
     row.map((tile, x) => {
       if (move.find((taken) => taken.x === x && taken.y === y)) {
-        return { claimed: gameState.currentPlayer };
+        return gameState.currentPlayer;
       } else {
         return tile;
       }
     }),
   );
-  const newPlayer = otherPlayer(gameState.currentPlayer);
+  let newPlayer = otherPlayer(gameState.currentPlayer);
+  let playerPossibleMoves = possibleMoves(newBoard, newPlayer);
+  // If the player can't make a move, skip
+  if (playerPossibleMoves.length === 0) {
+    newPlayer = otherPlayer(gameState.currentPlayer);
+    playerPossibleMoves = possibleMoves(newBoard, newPlayer);
+  }
   return {
     board: newBoard,
     currentPlayer: newPlayer,
-    playerMoves: possibleMoves(newBoard, newPlayer),
+    playerMoves: playerPossibleMoves,
   } as GameStateType;
 }

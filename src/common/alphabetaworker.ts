@@ -1,8 +1,12 @@
 import { GameStateType, PlayerEnum } from "./types";
 import * as game from "./game";
 import * as heuristic from "./heuristic";
+import { LRUCache } from "lru-cache";
 
-const gameStateCache = new Map<number, number>();
+const gameStateCache = new LRUCache<number, number>({ max: 100000 });
+
+const cacheHitRateAlpha = 0.001;
+let cacheHitRate = 0;
 let cacheMisses = 0;
 let cacheHits = 0;
 
@@ -14,10 +18,7 @@ function alphaBeta(
   beta: number,
 ) {
   if (depth === 0 || gameState.playerMoves.length === 0) {
-    return heuristic.evaluateState(
-      gameState.board,
-      game.otherPlayer(gameState.currentPlayer),
-    );
+    return heuristic.evaluateState(gameState.board, optimisingPlayer);
   }
 
   const boardHash = game.boardHashCode(gameState.board);
@@ -77,9 +78,21 @@ onmessage = (e) => {
     Number.MAX_SAFE_INTEGER,
   );
 
-  console.debug(
-    JSON.stringify({ cacheHits, cacheMisses, cacheSize: gameStateCache.size }),
-  );
+  let runHitRate = cacheMisses / (cacheMisses + cacheHits);
+  if (isNaN(runHitRate)) {
+    runHitRate = 0;
+  }
+  cacheHitRate =
+    cacheHitRateAlpha * runHitRate + (1 - cacheHitRateAlpha) * cacheHitRate;
+
+  if (Math.random() < 0.01) {
+    console.debug({
+      cacheHitRate: cacheHitRate.toLocaleString("en-US", {
+        style: "percent",
+        minimumFractionDigits: 2,
+      }),
+    });
+  }
 
   postMessage({ gameState, value });
 };

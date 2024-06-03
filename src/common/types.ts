@@ -3,9 +3,7 @@ export enum PlayerEnum {
   PLAYER_2,
 }
 
-export interface TileType {
-  claimed: PlayerEnum | undefined;
-}
+export type TileType = PlayerEnum | undefined;
 
 export type BoardType = TileType[][];
 

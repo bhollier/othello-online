@@ -19,10 +19,10 @@ export function evaluateState(board: BoardType, optimisingPlayer: PlayerEnum) {
       (acc, { row, y }) =>
         acc +
         row
-          .filter((tile) => tile.claimed !== undefined)
+          .filter((tile) => tile !== undefined)
           .map((tile, x) => {
             const tileValue = TABLE_HEURISTIC_SCORES[y][x];
-            if (tile.claimed === optimisingPlayer) {
+            if (tile === optimisingPlayer) {
               return tileValue;
             }
             return tileValue * -1;
